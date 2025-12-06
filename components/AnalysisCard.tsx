@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AnalysisResult } from '../types';
-import { CheckCircle, AlertTriangle, Lightbulb, Activity, Mic } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Lightbulb, Activity, Mic, Volume2, Loader2 } from 'lucide-react';
+import { playTextAsSpeech } from '../services/geminiService';
 
 interface AnalysisCardProps {
   analysis: AnalysisResult;
 }
 
 const AnalysisCard: React.FC<AnalysisCardProps> = ({ analysis }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const isPerfect = analysis.naturalnessScore >= 95;
   const scoreColor = 
     analysis.naturalnessScore >= 80 ? 'text-emerald-600' :
@@ -17,6 +20,18 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ analysis }) => {
     analysis.naturalnessScore >= 80 ? 'bg-emerald-100' :
     analysis.naturalnessScore >= 50 ? 'bg-amber-100' : 
     'bg-red-100';
+
+  const handlePlay = async () => {
+    if (isPlaying) return;
+    setIsPlaying(true);
+    try {
+      await playTextAsSpeech(analysis.correctedText);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsPlaying(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full max-w-2xl mt-4">
@@ -40,9 +55,19 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ analysis }) => {
            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Better way to say it</h4>
            <div className="flex items-start gap-3">
              <CheckCircle className="text-emerald-500 mt-1 shrink-0" size={20} />
-             <p className="text-lg text-slate-800 font-medium">
-               {analysis.correctedText}
-             </p>
+             <div className="flex-1">
+                 <p className="text-lg text-slate-800 font-medium">
+                   {analysis.correctedText}
+                 </p>
+                 <button 
+                    onClick={handlePlay} 
+                    disabled={isPlaying}
+                    className="mt-3 flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium transition-colors disabled:opacity-70 disabled:cursor-wait"
+                 >
+                    {isPlaying ? <Loader2 size={16} className="animate-spin" /> : <Volume2 size={16} />}
+                    {isPlaying ? "Playing..." : "Hear pronunciation"}
+                 </button>
+             </div>
            </div>
         </div>
 
