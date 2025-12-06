@@ -4,6 +4,7 @@ interface UseAudioRecorderReturn {
   isRecording: boolean;
   startRecording: () => Promise<void>;
   stopRecording: () => Promise<string>; // Returns base64 string
+  cancelRecording: () => void;
   audioBlob: Blob | null;
 }
 
@@ -70,10 +71,29 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
     });
   }, []);
 
+  const cancelRecording = useCallback(() => {
+    const mediaRecorder = mediaRecorderRef.current;
+    if (mediaRecorder) {
+      // Stop all tracks to release microphone
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      
+      // Stop recorder if it's still active
+      if (mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+    
+    // Reset state without processing data
+    setIsRecording(false);
+    setAudioBlob(null);
+    chunksRef.current = [];
+  }, []);
+
   return {
     isRecording,
     startRecording,
     stopRecording,
+    cancelRecording,
     audioBlob,
   };
 };
