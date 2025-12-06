@@ -1,0 +1,7 @@
+{
+  "name": "LinguaCoach AI",
+  "description": "An AI-powered English language tutor that listens to your speech or reads your text to provide instant, structured feedback on grammar, vocabulary, and pronunciation.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
