@@ -73,9 +73,6 @@ const App: React.FC = () => {
               LinguaCoach
             </h1>
           </div>
-          <div className="text-sm text-slate-500 font-medium">
-             AI English Tutor
-          </div>
         </div>
       </header>
 
